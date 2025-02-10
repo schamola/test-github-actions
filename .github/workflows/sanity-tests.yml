@@ -16,6 +16,9 @@ jobs:
   ########################################################################
   sanity-test:
     runs-on: macos-13
+    defaults:
+      run:
+        working-directory: ansible_collections/test-collection/
     strategy:
       fail-fast: false
       matrix:
@@ -33,15 +36,17 @@ jobs:
 
     name: running sanity tests with ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
     steps:
+
+      - name: checkout repository
+        uses: actions/checkout@v2
+        with:
+          path: ansible_collections/test-collection/
+
       - name: setup python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: checkout repository
-        run: |
-          git clone https://github.com/IBM/ansible-power-aix.git ansible_collections/ibm/power_aix &&
-          cd ansible_collections/ibm/power_aix
 
       # - name: Create a venv
       #   run: |
