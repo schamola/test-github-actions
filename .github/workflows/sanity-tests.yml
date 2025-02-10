@@ -48,10 +48,13 @@ jobs:
       #     python3 -m venv sanity-test &&
       #     source sanity-test/bin/activate
 
+      - name: Uninstall pre-installed ansible
+        run: pip uninstall -y ansible
+
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version != 'devel' }}
         run: |
-          pip install ansible==${{ matrix.ansible-version }}.* --user
+          pip install ansible==${{ matrix.ansible-version }}.*
 
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version == 'devel' }}
