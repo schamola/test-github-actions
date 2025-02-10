@@ -46,7 +46,7 @@ jobs:
       - name: Create a venv
         run: |
           python3 -m venv sanity-test &&
-          source test/bin/activate
+          source sanity-test/bin/activate
 
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version != 'devel' }}
