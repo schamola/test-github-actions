@@ -40,7 +40,8 @@ jobs:
 
       - name: checkout repository
         run: |
-          git clone https://github.com/IBM/ansible-power-aix.git ansible_collections/ibm/power_aix
+          git clone https://github.com/IBM/ansible-power-aix.git ansible_collections/ibm/power_aix &&
+          cd ansible_collections/ibm/power_aix
 
       # - name: Create a venv
       #   run: |
