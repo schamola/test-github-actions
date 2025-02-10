@@ -78,7 +78,7 @@ jobs:
           python -m pip install ansible==${{ matrix.ansible-version }}.*
 
       - name: Get pwd
-        run: pwd && ls
+        run: ls
 
       - name: install sanity test requirements
         run: |
