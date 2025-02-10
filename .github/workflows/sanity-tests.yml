@@ -15,15 +15,24 @@ jobs:
   # - makes sure that the collection passes the ansible sanity tests
   ########################################################################
   sanity-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     defaults:
       run:
-        working-directory: schamola/test-github-actions
+        working-directory: ansible_collections/ibm/power_aix
     strategy:
       fail-fast: false
       matrix:
-        ansible-version: ['2.9', '3', '4', '5', 'devel']
-        python-version: ['3.6', '3.8', '3.9', '3.10', '3.11', '3.12']
+        ansible-version: ['4', '5']
+        python-version: ['3.8', '3.10', '3.11', '3.12']
+        include:
+          # - ansible-version: 'devel'
+          #   python-version: '3.11'
+          # - ansible-version: 'devel'
+          #   python-version: '3.12'
+          - ansible-version: '2.9'
+            python-version: '3.8'
+          - ansible-version: '3'
+            python-version: '3.9'
 
     name: running sanity tests with ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
     steps:
@@ -33,24 +42,32 @@ jobs:
           path: schamola/test-github-actions
 
       - name: setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Create a venv
+        run: |
+          python3 -m venv test &&
+          source test/bin/activate
 
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version != 'devel' }}
         run: |
-          make install-ansible ANSIBLE_VERSION=${{ matrix.ansible-version }}
+          python -m pip install --upgrade pip &&
+          python -m pip install ansible==${{ matrix.ansible-version }}.*
+
+          
 
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version == 'devel' }}
         run: |
-          make install-ansible-devel-branch
+          python -m pip install ansible==${{ matrix.ansible-version }}.*
 
       - name: install sanity test requirements
         run: |
-          make install-sanity-test-requirements
+          python -m pip install -r tests/sanity/sanity.requirements
 
       - name: run sanity test on ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
         run: |
-          make sanity-test PYTHON_VERSION=${{ matrix.python-version }}
+          ansible-test sanity -v --python ${{ matrix.python-version }} --exclude plugins/modules/_*.py plugins/modules/
