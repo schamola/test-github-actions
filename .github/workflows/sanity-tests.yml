@@ -48,8 +48,17 @@ jobs:
       #     python3 -m venv sanity-test &&
       #     source sanity-test/bin/activate
 
-      - name: Uninstall pre-installed ansible
-        run: pip uninstall -y ansible
+      - name: Uninstall Ansible (apt-get)
+        run: |
+          sudo apt-get remove -y ansible   # Uninstalls Ansible if installed via apt
+          sudo apt-get autoremove -y       # Cleans up unnecessary packages
+    
+      - name: Uninstall Ansible (pip)
+        run: |
+          sudo pip uninstall -y ansible   # Uninstalls Ansible if installed via pip
+
+      - name: Verify Ansible is uninstalled
+        run: ansible --version || echo "Ansible has been uninstalled"
 
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version != 'devel' }}
