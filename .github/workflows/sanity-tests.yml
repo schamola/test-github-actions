@@ -16,9 +16,6 @@ jobs:
   ########################################################################
   sanity-test:
     runs-on: ubuntu-20.04
-    defaults:
-      run:
-        working-directory: ansible_collections/ibm/power_aix
     strategy:
       fail-fast: false
       matrix:
