@@ -39,7 +39,7 @@ jobs:
           path: schamola/test-github-actions
 
       - name: setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -64,4 +64,4 @@ jobs:
 
       - name: run sanity test on ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
         run: |
-          ~/.local/bin/ansible-test sanity -v --python ${{ matrix.python-version }} --exclude plugins/modules/_*.py plugins/modules/
+          ansible-test sanity -v --python ${{ matrix.python-version }} --exclude plugins/modules/_*.py plugins/modules/
