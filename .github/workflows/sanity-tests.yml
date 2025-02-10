@@ -15,7 +15,7 @@ jobs:
   # - makes sure that the collection passes the ansible sanity tests
   ########################################################################
   sanity-test:
-    runs-on: ubuntu-20.04
+    runs-on: macos-13
     strategy:
       fail-fast: false
       matrix:
@@ -33,46 +33,47 @@ jobs:
 
     name: running sanity tests with ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v2
-        with:
-          path: schamola/test-github-actions
-
       - name: setup python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: checkout repository
+        run: |
+          git clone https://github.com/IBM/ansible-power-aix.git ansible_collections/ibm/power_aix
 
       # - name: Create a venv
       #   run: |
       #     python3 -m venv sanity-test &&
       #     source sanity-test/bin/activate
 
-      - name: Uninstall Ansible (apt-get)
-        run: |
-          sudo apt-get remove -y ansible   # Uninstalls Ansible if installed via apt
-          sudo apt-get autoremove -y       # Cleans up unnecessary packages
+      # - name: Uninstall Ansible (apt-get)
+      #   run: |
+      #     sudo apt-get remove -y ansible   # Uninstalls Ansible if installed via apt
+      #     sudo apt-get autoremove -y       # Cleans up unnecessary packages
     
-      - name: Uninstall Ansible (pip)
-        run: |
-          sudo pip uninstall -y ansible   # Uninstalls Ansible if installed via pip
+      # - name: Uninstall Ansible (pip)
+      #   run: |
+      #     sudo pip uninstall -y ansible   # Uninstalls Ansible if installed via pip
 
-      - name: Verify Ansible is uninstalled
-        run: ansible --version || echo "Ansible has been uninstalled"
+      # - name: Verify Ansible is uninstalled
+      #   run: ansible --version || echo "Ansible has been uninstalled"
 
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version != 'devel' }}
         run: |
+          python -m pip install --upgrade pip
           pip install ansible==${{ matrix.ansible-version }}.*
 
       - name: install ansible ${{ matrix.ansible-version }}
         if: ${{ matrix.ansible-version == 'devel' }}
         run: |
+          python -m pip install --upgrade pip
           python -m pip install ansible==${{ matrix.ansible-version }}.*
 
       - name: install sanity test requirements
         run: |
-          python -m pip install -r /home/runner/work/test-github-actions/test-github-actions/schamola/test-github-actions/tests/sanity/sanity.requirements
+          python -m pip install -r tests/sanity/sanity.requirements
 
       - name: run sanity test on ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
         run: |
