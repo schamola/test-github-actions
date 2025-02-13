@@ -16,9 +16,6 @@ jobs:
   ########################################################################
   sanity-test:
     runs-on: ubuntu-20.04
-    defaults:
-      run:
-        working-directory: ansible_collections/test-collection/
     strategy:
       fail-fast: false
       matrix:
@@ -39,8 +36,6 @@ jobs:
 
       - name: checkout repository
         uses: actions/checkout@v2
-        with:
-          path: ansible_collections/test-collection/
 
       - name: setup python
         uses: actions/setup-python@v2
