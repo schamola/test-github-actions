@@ -74,7 +74,7 @@ jobs:
 
       - name: install sanity test requirements
         run: |
-          python -m pip install -r tests/sanity/sanity.requirements
+          python -m pip install -r /home/runner/work/test-github-actions/test-github-actions/tests/sanity/sanity.requirements
 
       - name: run sanity test on ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
         run: |
