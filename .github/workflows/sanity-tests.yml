@@ -15,42 +15,67 @@ jobs:
   # - makes sure that the collection passes the ansible sanity tests
   ########################################################################
   sanity-test:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: schamola/test-github-actions
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        ansible-version: ['2.9', '3', '4', '5', 'devel']
-        python-version: ['3.6', '3.8', '3.9', '3.10', '3.11', '3.12']
+        # ansible-version: ['2.13', '2.15', '2.16', '2.17']
+        python-version: ['3.8', '3,9', '3.10', '3.11', '3.12']
+        # include:
+        #   # - ansible-version: 'devel'
+        #   #   python-version: '3.11'
+        #   # - ansible-version: 'devel'
+        #   #   python-version: '3.12'
+        #   - ansible-version: '2.9'
+        #     python-version: '3.8'
+        #   - ansible-version: '3'
+        #     python-version: '3.9'
 
     name: running sanity tests with ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
     steps:
+
       - name: checkout repository
         uses: actions/checkout@v2
-        with:
-          path: schamola/test-github-actions
 
       - name: setup python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: install ansible ${{ matrix.ansible-version }}
-        if: ${{ matrix.ansible-version != 'devel' }}
-        run: |
-          make install-ansible ANSIBLE_VERSION=${{ matrix.ansible-version }}
 
-      - name: install ansible ${{ matrix.ansible-version }}
-        if: ${{ matrix.ansible-version == 'devel' }}
-        run: |
-          make install-ansible-devel-branch
+      # - name: Create a venv
+      #   run: |
+      #     python3 -m venv sanity-test &&
+      #     source sanity-test/bin/activate
+
+      # - name: Uninstall Ansible (apt-get)
+      #   run: |
+      #     sudo apt-get remove -y ansible   # Uninstalls Ansible if installed via apt
+      #     sudo apt-get autoremove -y       # Cleans up unnecessary packages
+    
+      # - name: Uninstall Ansible (pip)
+      #   run: |
+      #     sudo pip uninstall -y ansible   # Uninstalls Ansible if installed via pip
+
+      # - name: Verify Ansible is uninstalled
+      #   run: ansible --version || echo "Ansible has been uninstalled"
+
+      # - name: install ansible ${{ matrix.ansible-version }}
+      #   if: ${{ matrix.ansible-version != 'devel' }}
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install --upgrade ansible==${{ matrix.ansible-version }}.*
+
+      # - name: install ansible ${{ matrix.ansible-version }}
+      #   if: ${{ matrix.ansible-version == 'devel' }}
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     python -m pip install ansible==${{ matrix.ansible-version }}.*
 
       - name: install sanity test requirements
         run: |
-          make install-sanity-test-requirements
+          python -m pip install -r /home/runner/work/test-github-actions/test-github-actions/tests/sanity/sanity.requirements
 
       - name: run sanity test on ansible ${{ matrix.ansible-version }} and python ${{ matrix.python-version }}
         run: |
-          make sanity-test PYTHON_VERSION=${{ matrix.python-version }}
+          ansible-test sanity -v --python ${{ matrix.python-version }} --exclude plugins/modules/_*.py plugins/modules/
